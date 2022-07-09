@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      .scroll--container {
+        height: 50vh;
+        border: 1px solid #bbb;
+        overflow-y: scroll;
+      }
+      .scroll--container .list {
+        height: 100px;
+        border: 1px solid #efefef;
+        padding: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="scroll--container">
+      <div class="list">
+        <h3 class="title">title</h3>
+        <div class="contents">contents</div>
+      </div>
+      <div class="list">item2</div>
+    </div>
+  </body>
+
+  <script>
+    const main = {
+      init: async function () {
+        const _this = this;
+        const container = document.querySelector(".scroll--container");
+        container.appendChild(
+          _this.createNewItem({ title: "title", content: "contents" })
+        );
+
+        const data = await _this.callData();
+
+        let nowPage = 0;
+        let count = 5;
+        let isMaxPage = false;
+
+        setInterval(()=>{
+          if(isMaxPage){
+            isMaxPage = false;
+          }
+        },5000)
+        container.addEventListener("scroll", (event) => {
+          if (!isMaxPage &&  container.scrollHeight - container.scrollTop < 300) {
+            console.log(_this.getNowPage(data,nowPage,5));
+            const result = _this.getNowPage(data,nowPage,5).map(item=>_this.createNewItem(item))
+            container.append(...result);
+            nowPage += 5;
+
+            if(!result.length){
+              isMaxPage = true;
+            }
+          }
+        });
+
+        document.addEventListener("scroll", (event) => {
+          console.log(event);
+        });
+        // document height
+        // window height
+      },
+      callData: async function () {
+        const result = await fetch("./data1.json");
+        const data = await result.json();
+        return data;
+      },
+
+      createNewItem: function ({ title = "", content = "" }) {
+        const newListItem = document.createElement("div");
+        const titleComponent = document.createElement("h3");
+        const contentComponent = document.createElement("div");
+
+        // set class
+        newListItem.classList.add("list");
+        titleComponent.classList.add("title");
+        contentComponent.classList.add("contents");
+
+        // set text
+        titleComponent.appendChild(document.createTextNode(title));
+        contentComponent.appendChild(document.createTextNode(content));
+
+        newListItem.appendChild(titleComponent);
+        newListItem.appendChild(contentComponent);
+
+        return newListItem;
+      },
+
+      getNowPage(arr = [], start = 0, count = 5) {
+        return arr.filter((_,index)=> index >=start && index <start +count)
+      },
+    };
+    main.init();
+  </script>
+</html>
+
+<!--
+  1. 가져올 수 있는 데이터의 수량 제어할 수 있는 기능 있어야함( server )
+-->
+
+
+<!--
+
+  db 
+
+    
+  server 
+
+
+  client
+
+
+-->
